@@ -79,7 +79,7 @@ module.exports = {
         console.log("Re-encoding complete!");
 
         console.log("Uploading to YouTube...");
-        // url = await upload();
+        url = await upload();
         console.log("Upload complete! URL:", url ?? "");
         await wait(10000);
         console.log("Cleaning up...");
