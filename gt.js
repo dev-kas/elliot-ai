@@ -1,8 +1,7 @@
-import { google } from "googleapis";
-import readline from "readline";
+const { google } = require("googleapis");
+const readline = require("readline");
 
-import dotenv from "dotenv";
-dotenv.config();
+require("dotenv").config();
 
 const oauth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,

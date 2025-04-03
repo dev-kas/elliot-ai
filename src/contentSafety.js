@@ -1,6 +1,6 @@
 const { HfInference } = require('@huggingface/inference');
 
-require('dotenv').config();
+// require('dotenv').config();
 const hf = new HfInference(process.env.HF_API_KEY);
 
 module.exports.checkContentSafety = async (imagePath) => {

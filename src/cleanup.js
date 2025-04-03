@@ -6,21 +6,40 @@ module.exports.cleanup = async function () {
         path.join(__dirname, '..', 'downloads'),
         path.join(__dirname, '..', 'processor'),
         path.join(__dirname, '..', 'output'),
-    ];
+    ].filter(fs.existsSync);
 
     const files = [
         path.join(__dirname, '..', 'concat_list.txt'),
-    ];
-    
-    const dirsList = dirs.flatMap(dir => fs.existsSync(dir) ? fs.readdirSync(dir).map(file => path.join(dir, file)) : [] );
-    const allFiles = [...dirsList, ...files];
-    
-    for (const file of allFiles) {
-        if (fs.statSync(file).isDirectory()) {
-            console.log('Skipping directory:', file);
-            continue;
+    ].filter(fs.existsSync);
+
+    const dirsList = dirs.flatMap(dir => {
+        try {
+            return fs.readdirSync(dir).map(file => path.join(dir, file));
+        } catch (error) {
+            if (!error) return [];
+            console.warn(`Skipping inaccessible directory: ${dir}`);
+            return [];
         }
-        fs.unlinkSync(file);
-        console.log('Deleted:', file);
+    });
+
+    const allFiles = [...dirsList, ...files];
+
+    for (const file of allFiles) {
+        try {
+            if (!fs.existsSync(file)) {
+                console.log('Skipping non-existent file:', file);
+                continue;
+            }
+
+            if (fs.statSync(file).isDirectory()) {
+                console.log('Skipping directory:', file);
+                continue;
+            }
+
+            fs.unlinkSync(file);
+            console.log('Deleted:', file);
+        } catch (error) {
+            console.error(`Error processing ${file}:`, error.message);
+        }
     }
-}
+};

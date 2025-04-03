@@ -2,7 +2,6 @@ const ffmpeg = require('fluent-ffmpeg');
 const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
-const { wait } = require('../util/wait');
 
 module.exports.compile = async () => {
     const inputDir = path.join(__dirname, "..", "downloads");
@@ -38,7 +37,7 @@ module.exports.compile = async () => {
 
     console.log("Merging all MP4 files...")
 
-    await concatMP4(
+    await module.exports.concatMP4(
         fs.readdirSync(outputDir).map(file => path.join(outputDir, file)),
         path.join(outputDir, 'output.mp4')
     );
@@ -62,8 +61,7 @@ function processJPG(inputPath, outputPath) {
     });
 }
 
-
-function concatMP4(inputPaths, outputPath) {
+module.exports.concatMP4 = async (inputPaths, outputPath) => {
     return new Promise((resolve, reject) => {
         console.log('Concatenating MP4 files:', inputPaths, outputPath);
         if (inputPaths.length < 2) {
@@ -88,5 +86,69 @@ function concatMP4(inputPaths, outputPath) {
                 resolve();
             })
             .save(outputPath);
+    });
+}
+
+module.exports.mixAudioVideo = (audioPath, videoPath, outputPath) => {
+    if (!fs.existsSync(audioPath)) {
+        console.error(`Error: Audio file not found at ${audioPath}`);
+        return;
+    }
+
+    if (!fs.existsSync(videoPath)) {
+        console.error(`Error: Video file not found at ${videoPath}`);
+        return;
+    }
+
+    return new Promise((resolve, reject) => {
+        ffmpeg()
+            .input(videoPath)
+            .input(audioPath)
+            .audioCodec('aac')
+            .audioChannels(2)
+            .audioBitrate('128k')
+            .complexFilter(['[1:a]volume=2.0[a]'])
+            .outputOptions(['-map', '0:v', '-map', '[a]'])
+            .output(outputPath)
+            .on('error', err => {
+                console.error('AudioVideo Mix Error:', err.message);
+                reject(err);
+            })
+            .on('end', () => {
+                console.log(`AudioVideo Mix complete! Output saved to: ${outputPath}`);
+                resolve();
+            })
+            .run();
+    });
+};
+
+module.exports.reEncode = (inputPath, outputPath, mode = "crop") => {
+    if (!fs.existsSync(inputPath)) {
+        console.error(`Error: Input file not found at ${inputPath}`);
+        return;
+    }
+
+    if (!["crop", "scale"].includes(mode)) {
+        console.error(`Error: Invalid mode ${mode}`);
+        return;
+    }
+
+    return new Promise((resolve, reject) => {
+        ffmpeg(inputPath)
+            .videoFilter([
+                'scale=1080:1920:force_original_aspect_ratio=decrease',
+                mode === "crop" && 'crop=ih*9/16:ih',
+                mode === "scale" && 'pad=ih*9/16:ih'
+            ].filter(Boolean))
+            .videoCodec('libx264')
+            .audioCodec('aac')
+            .outputOptions([
+                '-crf 23',
+                '-b:a 128k'
+            ])
+            .save(outputPath)
+            .on('end', () => resolve())
+            .on('error', (err) => reject(err));
+
     });
 }
