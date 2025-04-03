@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const { randomJoke } = require("../src/scraper");
 const story_generator = require("../util/generateStory");
 const { saveSpeech } = require("../util/tts/tts");
