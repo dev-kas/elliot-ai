@@ -1,6 +1,6 @@
 const { randomJoke } = require("../src/scraper");
 const story_generator = require("../util/generateStory");
-const { saveSpeech } = require("../util/tts/tts");
+const { saveSpeech } = require("../util/tts");
 const { randChoice, randInt } = require("../util/random");
 const { concatMP4, mixAudioVideo, reEncode } = require("../src/compile");
 const ffmpeg = require("fluent-ffmpeg");
@@ -23,7 +23,7 @@ module.exports = {
         console.log("Generated story:", story);
 
         console.log("Generating speech...");
-        saveSpeech(story);
+        await saveSpeech(story);
         const duration = await new Promise((resolve, reject) => {
             ffmpeg.ffprobe(path.join(__dirname, "..", "output", "audio.mp3"), (err, data) => {
                 if (err) {
@@ -78,8 +78,8 @@ module.exports = {
         console.log("Re-encoding complete!");
 
         console.log("Uploading to YouTube...");
-        url = await upload();
-        console.log("Upload complete! URL:", url ?? "");
+        url = await upload(null, null, null, "final_re_encoded.mp4");
+        console.log("Upload complete! URL:", url ?? "Error obtaining URL");
         await wait(10000);
         console.log("Cleaning up...");
         await cleanup();

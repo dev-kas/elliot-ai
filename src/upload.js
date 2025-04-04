@@ -27,20 +27,20 @@ module.exports.upload = async (title, description, tags, file) => {
         return `${d}${relevant}`;
     });
 
-    const res = youtube.videos.insert({
+    const res = await youtube.videos.insert({
         part: 'snippet,status',
         requestBody: {
             snippet: {
                 title: title || `Your Daily Dose of Memes for ${formattedDate}`,
                 description: description || `😂 *Daily Dose of Memes for ${formattedDate}!* 😂  
 
-A fresh compilation of memes from across the internet. If you enjoy the content, hit **Subscribe** and turn on notifications for your daily meme fix!  
+A fresh compilation of memes from across the internet. If you enjoy the content, hit *Subscribe* and turn on notifications for your daily meme fix!  
 
-📌 **Sources:** Reddit, Memedroid, 9Gag.com  
+📌 *Sources:* Reddit, Memedroid, 9Gag.com  
 
-🤖 **AI Moderation:** This video uses AI to filter and moderate content. If any meme was misclassified, please contact us for corrections.  
+🤖 *AI Moderation:* This video uses AI to filter and moderate content. If any meme was misclassified, please contact us for corrections.  
 
-⚠️ **Disclaimer:** This video is for entertainment purposes only. Memes are used under fair use. If you own any content and want it removed, please contact us.`,
+⚠️ *Disclaimer:* This video is for entertainment purposes only. Memes are used under fair use. If you own any content and want it removed, please contact us.`,
                 tags: tags || ['funny', 'memes'],
                 categoryId: '23'
             },
@@ -52,5 +52,5 @@ A fresh compilation of memes from across the internet. If you enjoy the content,
             body: fs.createReadStream(path.join(__dirname, '..', 'output', file || 'output.mp4'))
         }
     });
-    return `https://www.youtube.com/watch?v=${res.data.id}`;
+    return res?.data?.id ? `https://www.youtube.com/watch?v=${res.data.id}` : null;
 }
