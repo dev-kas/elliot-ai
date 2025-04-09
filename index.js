@@ -12,7 +12,7 @@ for (const file of fs.readdirSync(path.join(__dirname, 'pipelines'))) {
 }
 
 (async () => {
-    const pipeline = randChoiceWithWeight(pipelines, pipelines.map(p => p.weight));
+    const pipeline = randChoiceWithWeight(pipelines, pipelines.map(p => p.weight)).choice;
     console.log("Selected pipeline:", pipeline.name);
     // if (pipeline.name === "jokes") { // skip legacy while testing.
         try {

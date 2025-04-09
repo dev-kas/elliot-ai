@@ -17,14 +17,14 @@ const generateStory = async (src, joke) => {
                 },
                 {
                     role: "user",
-                    content: `You will be given a joke from "${src}", and your task is to transform it into a short, humorous, and engaging story. The story should be:
-- Between 75-125 words (concise but entertaining).
-- Funny to the average person (not just tech geeks).
-- Suitable for all ages (lighthearted, no dark humor).
-- Ending with a punchline (to maintain the joke’s essence).
-You must ONLY return the story—no explanations, formatting, or introductions. Your writing should keep a snappy pace, feel natural, and emphasize the humor of the original joke.\n
-Joke:\n"${joke}"\n
-Now, craft the story.`
+                    content: `You will be given a joke from "${src}". Your mission:
+ - Explode the joke into a fast, ridiculous, and funny micro-story. 
+ - Keep it 35-70 words (short attention spans).  
+ - The story must be chaotic, exaggerated, and punchy (every line should feel like a slap).  
+ - It must start instantly (no build-up) and end with a savage punchline.
+ - Lighthearted, meme-worthy tone — think "cartoon logic," not "boring sitcom."
+ - Return ONLY the story — no explanation, no filler.\n
+Joke:\n"${joke}"`
                 }
             ]
         });

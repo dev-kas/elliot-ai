@@ -1,7 +1,7 @@
 const axios = require("axios");
 const path = require("node:path");
 
-module.exports.saveSpeech = async (text, model = "tts_models/en/vctk/vits", speaker = "p226", output = path.resolve(__dirname, "../output/audio.mp3")) => {
+module.exports.saveSpeech = async (text, model = "tts_models/en/vctk/vits", speaker = "p376", output = path.resolve(__dirname, "../output/audio.mp3")) => {
     if (text == null) return;
     text = text.replace(/[^a-zA-Z0-9,.$€£%]/g, '');
 

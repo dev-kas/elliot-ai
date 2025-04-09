@@ -139,5 +139,6 @@ output
 .venv
 processed
 downloads
+tag-weights.json
 
 **/.DS_Store

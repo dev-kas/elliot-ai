@@ -1,7 +1,7 @@
 const { randomJoke } = require("../src/scraper");
 const story_generator = require("../util/generateStory");
 const { saveSpeech } = require("../util/tts");
-const { randChoice, randInt } = require("../util/random");
+const { randChoice, randInt, randChoiceWithWeight } = require("../util/random");
 const { concatMP4, mixAudioVideo, reEncode } = require("../src/compile");
 const ffmpeg = require("fluent-ffmpeg");
 const path = require("node:path");
@@ -9,6 +9,7 @@ const fs = require("node:fs");
 const { wait } = require("../util/wait");
 const { upload } = require("../src/upload");
 const { cleanup } = require("../src/cleanup");
+const { getFileTag, getFilesByTag, getTagsInDir } = require("../util/tagSystem");
 
 module.exports = {
     name: "jokes",
@@ -36,9 +37,46 @@ module.exports = {
         })
         console.log("Speech generated. Length:", duration, "seconds");
 
-        const clips = fs.readdirSync(path.join(__dirname, "..", "clips")).map(file => path.join(__dirname, "..", "clips", file));
-        const clip = randChoice(clips);
+        const clipsTags = getTagsInDir(path.join(__dirname, "..", "clips"));
+        let tagWeights = {};
+
+        try {
+            let weights = fs.readFileSync(path.join(__dirname, "..", "tag-weights.json"), "utf-8");
+            weights = JSON.parse(weights);
+
+            tagWeights = weights;
+        } catch (error) {
+            console.error("Error loading tag weights:", error.message, "Generating default tag weights.");
+            tagWeights = {};
+            for (const tag of clipsTags) {
+                tagWeights[tag] = 1;
+            }
+        }
+
+        for (const tag of clipsTags) {
+            if (!tagWeights[tag]) {
+                tagWeights[tag] = 2;
+            }
+        }
+        
+        for (const tag in tagWeights) {
+            if (!clipsTags.includes(tag)) {
+                delete tagWeights[tag];
+            }
+        }        
+
+        const { choice: tag, weights: newTagWeights } = randChoiceWithWeight(clipsTags, clipsTags.map(t => tagWeights[t]));
+
+        for (let i = 0; i < clipsTags.length; i++) {
+            tagWeights[clipsTags[i]] = newTagWeights[i];
+        }
+
+        fs.writeFileSync(path.join(__dirname, "..", "tag-weights.json"), JSON.stringify(tagWeights, null, 4), "utf-8");
+
+        const clips = getFilesByTag(path.join(__dirname, "..", "clips"), tag);
+        const clip = path.resolve(path.join(__dirname, "..", "clips", randChoice(clips)));
         console.log("Selected clip:", clip);
+
         if (!fs.existsSync(clip)) {
             console.error("Clip not found:", clip);
             return;

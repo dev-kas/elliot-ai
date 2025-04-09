@@ -8,16 +8,37 @@ module.exports.randChoiceWithWeight = (arr, weights) => {
     }
 
     const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-  
+
     const random = Math.random() * totalWeight;
-  
+
     let cumulativeWeight = 0;
+    let selectedIndex = -1;
+
     for (let i = 0; i < arr.length; i++) {
         cumulativeWeight += weights[i];
         if (random < cumulativeWeight) {
-            return arr[i];
+            selectedIndex = i;
+            break;
         }
     }
+
+    if (selectedIndex === -1) {
+        // in case of floating point stupidity
+        selectedIndex = arr.length - 1;
+    }
+
+    const newWeights = weights.map((weight, idx) => {
+        if (idx === selectedIndex) {
+            return Math.max(1, weight * 0.5); // 1/2 the winner's chance, but dont let it die completely
+        } else {
+            return weight + 1; // buff others slowly
+        }
+    });
+
+    return {
+        choice: arr[selectedIndex],
+        weights: newWeights
+    };
 };
 
 module.exports.fisherYatesShuffle = (array) => {
