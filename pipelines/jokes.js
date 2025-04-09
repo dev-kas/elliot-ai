@@ -1,7 +1,7 @@
 const { randomJoke } = require("../src/scraper");
 const story_generator = require("../util/generateStory");
 const { saveSpeech } = require("../util/tts");
-const { randChoice, randInt, randChoiceWithWeight } = require("../util/random");
+const { randChoice, randChoiceWithWeight } = require("../util/random");
 const { concatMP4, mixAudioVideo, reEncode } = require("../src/compile");
 const ffmpeg = require("fluent-ffmpeg");
 const path = require("node:path");
@@ -9,7 +9,7 @@ const fs = require("node:fs");
 const { wait } = require("../util/wait");
 const { upload } = require("../src/upload");
 const { cleanup } = require("../src/cleanup");
-const { getFileTag, getFilesByTag, getTagsInDir } = require("../util/tagSystem");
+const { getFilesByTag, getTagsInDir } = require("../util/tagSystem");
 
 module.exports = {
     name: "jokes",
@@ -84,7 +84,7 @@ module.exports = {
 
         await new Promise((resolve, reject) => {
             ffmpeg(clip)
-            .setStartTime(randInt(0, 10))
+            .setStartTime(0)
             .duration(duration)
             .save(path.join(__dirname, "..", "output", "video.mp4"))
             .on('end', () => {
@@ -110,7 +110,6 @@ module.exports = {
 
         console.log("Concatenating MP4 files...");
         await concatMP4([path.join(__dirname, "..", "output", "merged_re_encoded.mp4"), path.join(__dirname, "..", "output", "outro_re_encoded.mp4")], path.join(__dirname, "..", "output", "final.mp4"));
-        await wait(1000);
         console.log("Re-encoding final video...");
         await reEncode(path.join(__dirname, "..", "output", "final.mp4"), path.join(__dirname, "..", "output", "final_re_encoded.mp4"), "scale");
         console.log("Re-encoding complete!");
