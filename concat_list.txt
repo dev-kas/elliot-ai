@@ -1,2 +1,0 @@
-file '/Users/anupriyaverma/Documents/Elliot/output/merged_re_encoded.mp4'
-file '/Users/anupriyaverma/Documents/Elliot/output/outro_re_encoded.mp4'

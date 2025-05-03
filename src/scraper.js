@@ -113,13 +113,14 @@ module.exports.randomJoke = async () => {
                 return response.data.joke;
             }
         },
-        {
-            name: 'Chuck Norris',
-            activate: async () => {
-                const response = await axios.get('https://api.chucknorris.io/jokes/random');
-                return response.data.value;
-            }
-        },
+        // Commented out due to NSFW issues
+        // {
+        //     name: 'Chuck Norris',
+        //     activate: async () => {
+        //         const response = await axios.get('https://api.chucknorris.io/jokes/random');
+        //         return response.data.value;
+        //     }
+        // },
         {
             name: 'Joke API',
             activate: async () => {

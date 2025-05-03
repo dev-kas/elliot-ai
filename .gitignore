@@ -140,5 +140,6 @@ output
 processed
 downloads
 tag-weights.json
-
+clips
+archive
 **/.DS_Store

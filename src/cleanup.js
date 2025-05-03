@@ -2,6 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports.cleanup = async function () {
+    const ignorelist = [
+        path.join(__dirname, '..', 'output', 'merged.mp4'),
+    ];
+
     const dirs = [
         path.join(__dirname, '..', 'downloads'),
         path.join(__dirname, '..', 'processor'),
@@ -26,6 +30,11 @@ module.exports.cleanup = async function () {
 
     for (const file of allFiles) {
         try {
+            if (ignorelist.includes(file)) {
+                console.log('Skipping ignored file:', file);
+                continue;
+            }
+            
             if (!fs.existsSync(file)) {
                 console.log('Skipping non-existent file:', file);
                 continue;
@@ -42,4 +51,9 @@ module.exports.cleanup = async function () {
             console.error(`Error processing ${file}:`, error.message);
         }
     }
+
+    fs.renameSync(
+        path.join(__dirname, '..', 'output', 'merged.mp4'),
+        path.join(__dirname, '..', 'archive', new Date().toISOString().slice(0, 10) + '.mp4')
+    )
 };
